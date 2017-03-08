@@ -26,7 +26,7 @@ _IMG_CACHE = 'img_cache/'
 @app.task
 def get_image(_id):
     """
-    For the given _id, HTTP GET to load an image in memory
+    For the given _id, HTTP GET to cache the image file
 
     """
     print('recieved Key: {}'.format(_id))
