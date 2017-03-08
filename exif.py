@@ -5,13 +5,14 @@ Queue up a chained set of tasks
  - get an image
    - get exif data for that image
    - store results in elasticsearch
-   
+
 """
-import requests
 import xml.etree.ElementTree as ET
 
 from operator import itemgetter
 
+import requests
+from pymongo import MongoClient
 from PIL import Image, ExifTags
 
 from celery_app import app
@@ -19,6 +20,7 @@ from celery_app import app
 _URL = 'http://s3.amazonaws.com/waldo-recruiting'
 _NAMESPACE = {'photos': 'http://s3.amazonaws.com/doc/2006-03-01/'}
 _IMG_CACHE = 'img_cache/'
+
 
 
 @app.task
@@ -43,6 +45,10 @@ def get_exif_data(file):
     Return a dict of the exif tag key/value pairs for the given image
 
     """
+    # this should be expanded on to use @contextmanager
+    mongo_client = MongoClient()
+    mongo_dbc = mongo_client.test
+
     with open(file) as f:
         img = Image.open(file)
         exif = {
@@ -51,7 +57,11 @@ def get_exif_data(file):
             if k in ExifTags.TAGS
         }
 
-    print(exif)
+    mongo_dbc.images.insert_one({
+      'record': file,
+      'exif': exif
+    })
+    # print(exif)
 
 
 @app.task
